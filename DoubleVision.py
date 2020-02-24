@@ -14,16 +14,21 @@ def filehash(fname):
 
 def findDuplicates(root): 	# Traversal is depth first
 	hashes = {} 	# The dictionary of hashes (keys) for corresponding paths to files (values)
+	f_cnt = 0
+	f_size = 0
 	for root, subdirs, files in os.walk(root):
 		for f in files:
-			fhash = filehash(root + '\\' + f)
+			f_path = root + '/' + f
+			fhash = filehash(f_path)
+			f_cnt += 1
+			f_size += os.path.getsize(f_path)
 			if fhash in hashes: 	# This file already exists, append it to the list
 				plist = hashes[fhash]
-				plist.append(root + '\\' + f) 	#*** try subdirs here
+				plist.append(root + '/' + f) 	#*** try subdirs here
 				hashes[fhash] = plist
 			else: 	# This file is unique, add it to the dictionary as a new entry
-				hashes[fhash] = [root + '\\' + f]
-	return hashes
+				hashes[fhash] = [root + '/' + f]
+	return hashes, f_cnt, f_size
 
 def searchFiles():
 	global dirname
@@ -38,7 +43,9 @@ def searchFiles():
 
 	if os.path.isdir(startDir):
 		print('\nThe duplicate file check will begin at: ' + startDir + '\n')
-		hashes = findDuplicates(startDir)
+		hashes, f_cnt, f_size = findDuplicates(startDir)
+		print("Number of files: " + str(f_cnt))
+		print("Total size: " + str(f_size))
 		results = ''
 		for e in hashes:
 			if len(hashes[e]) > 1: 	# found a duplicate file
@@ -53,7 +60,7 @@ def searchFiles():
 			results = 'No duplicate files found.'
 		resultprint.set(results)
 	else:
-		print('The specified path is either not a valid path to a directory, or does not exits.')
+		print('The specified path is either not a valid path to a directory, or does not exist.')
 
 def askdirectory():
 	global window
